@@ -2,19 +2,20 @@ import React, { useState } from "react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { Button } from "@/components/ui/button";
-import { Users, Shield, MessageCircle } from "lucide-react";
-import { ComplaintChatbot } from "@/components/ComplaintChatbot";
+import { Users, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [dashboardType, setDashboardType] = useState<"user" | "admin">("user");
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Toggle */}
       <div className="bg-card border-b p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold">Complaint Management System</h1>
+          <Link to="/" className="text-xl font-bold no-underline text-foreground">
+            Complaint Management System
+          </Link>
           <div className="flex gap-2">
             <Button
               variant={dashboardType === "user" ? "default" : "outline"}
@@ -38,19 +39,6 @@ export default function Dashboard() {
 
       {/* Dashboard Content */}
       {dashboardType === "user" ? <UserDashboard /> : <AdminDashboard />}
-       {/* Floating Chatbot Icon */}
-       <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          variant="default"
-          size="icon"
-          className="h-14 w-14 rounded-full shadow-lg"
-          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-        >
-          <MessageCircle className="h-8 w-8" />
-        </Button>
-      </div>
-      {/* Chatbot Pop-up */}
-      <ComplaintChatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </div>
   );
 }
