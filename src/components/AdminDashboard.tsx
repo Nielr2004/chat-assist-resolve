@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Users, Clock, TrendingUp, AlertTriangle, CheckCircle, Settings, Search, Filter } from "lucide-react";
+import { Users, Clock, TrendingUp, AlertTriangle, CheckCircle, Settings, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 
 interface Ticket {
   id: string;
@@ -134,6 +136,19 @@ export function AdminDashboard() {
     },
   ];
 
+  const ticketStatusData = [
+    { name: 'Open', value: tickets.filter(t => t.status === 'Open').length },
+    { name: 'In Progress', value: tickets.filter(t => t.status === 'In Progress').length },
+    { name: 'Resolved', value: tickets.filter(t => t.status === 'Resolved').length },
+  ];
+  
+  const ticketPriorityData = [
+    { name: 'Low', value: tickets.filter(t => t.priority === 'Low').length },
+    { name: 'Medium', value: tickets.filter(t => t.priority === 'Medium').length },
+    { name: 'High', value: tickets.filter(t => t.priority === 'High').length },
+    { name: 'Critical', value: tickets.filter(t => t.priority === 'Critical').length },
+  ];
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -163,6 +178,38 @@ export function AdminDashboard() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Tickets by Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsBarChart data={ticketStatusData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="hsl(var(--primary))" />
+                </RechartsBarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Tickets by Priority</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsPieChart>
+                  <Pie data={ticketPriorityData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="hsl(var(--primary))" label />
+                  <Tooltip />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters */}
@@ -253,20 +300,27 @@ export function AdminDashboard() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Select 
-                          value={ticket.status} 
-                          onValueChange={(value) => updateTicketStatus(ticket.id, value)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Open">Open</SelectItem>
-                            <SelectItem value="In Progress">In Progress</SelectItem>
-                            <SelectItem value="Resolved">Resolved</SelectItem>
-                            <SelectItem value="Closed">Closed</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">View</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Ticket Details</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <p><strong>ID:</strong> {ticket.id}</p>
+                              <p><strong>Customer:</strong> {ticket.customer}</p>
+                              <p><strong>Title:</strong> {ticket.title}</p>
+                              <p><strong>Description:</strong> {ticket.description}</p>
+                              <p><strong>Category:</strong> {ticket.category}</p>
+                              <p><strong>Priority:</strong> {ticket.priority}</p>
+                              <p><strong>Status:</strong> {ticket.status}</p>
+                              <p><strong>Assigned To:</strong> {ticket.assignedTo}</p>
+                              {ticket.aiSuggestion && <p><strong>AI Suggestion:</strong> {ticket.aiSuggestion}</p>}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </TableCell>
                     </TableRow>
                   ))}

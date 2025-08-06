@@ -1,10 +1,18 @@
 import React, { useState } from "react";
-import { MessageCircle, Plus, Search, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { MessageCircle, Plus, Search, Clock, CheckCircle, AlertTriangle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ComplaintChatbot } from "./ComplaintChatbot";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface Complaint {
   id: string;
@@ -56,10 +64,10 @@ export function UserDashboard() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Open": return <Clock className="h-4 w-4" />;
-      case "In Progress": return <AlertTriangle className="h-4 w-4" />;
-      case "Resolved": return <CheckCircle className="h-4 w-4" />;
-      case "Closed": return <CheckCircle className="h-4 w-4" />;
+      case "Open": return <Clock className="h-4 w-4 text-yellow-500" />;
+      case "In Progress": return <AlertTriangle className="h-4 w-4 text-blue-500" />;
+      case "Resolved": return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case "Closed": return <CheckCircle className="h-4 w-4 text-gray-500" />;
       default: return <Clock className="h-4 w-4" />;
     }
   };
@@ -104,11 +112,11 @@ export function UserDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">My Complaints</h1>
-            <p className="text-muted-foreground">Track and manage your support requests</p>
+            <h1 className="text-3xl font-bold">Welcome Back!</h1>
+            <p className="text-muted-foreground">Here's a summary of your support requests.</p>
           </div>
           <Button onClick={() => setIsChatbotOpen(true)} className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
+            <Plus className="h-4 w-4" />
             New Complaint
           </Button>
         </div>
@@ -128,67 +136,72 @@ export function UserDashboard() {
           ))}
         </div>
 
-        {/* Search and Filter */}
-        <div className="flex gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search complaints..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Complaints List */}
-        <div className="space-y-4">
-          {filteredComplaints.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No complaints found</h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  {searchQuery ? "No complaints match your search criteria." : "You haven't submitted any complaints yet."}
-                </p>
-                {!searchQuery && (
-                  <Button onClick={() => setIsChatbotOpen(true)}>
-                    Submit Your First Complaint
-                  </Button>
+        {/* Complaints Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>My Complaints</CardTitle>
+            <div className="relative mt-2">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search complaints..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Ticket ID</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredComplaints.length > 0 ? (
+                  filteredComplaints.map((complaint) => (
+                    <TableRow key={complaint.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(complaint.status)}
+                          <span>{complaint.status}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{complaint.id}</TableCell>
+                      <TableCell>{complaint.title}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{complaint.category}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getPriorityColor(complaint.priority)}>
+                          {complaint.priority}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{complaint.updatedAt.toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon">
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      No complaints found.
+                    </TableCell>
+                  </TableRow>
                 )}
-              </CardContent>
-            </Card>
-          ) : (
-            filteredComplaints.map((complaint) => (
-              <Card key={complaint.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {getStatusIcon(complaint.status)}
-                      <div>
-                        <CardTitle className="text-lg">{complaint.title}</CardTitle>
-                        <CardDescription>#{complaint.id}</CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={getPriorityColor(complaint.priority)}>
-                        {complaint.priority}
-                      </Badge>
-                      <Badge variant="outline">{complaint.status}</Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{complaint.description}</p>
-                  <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    <span>Category: {complaint.category}</span>
-                    <span>Updated: {complaint.updatedAt.toLocaleDateString()}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       </div>
 
       <ComplaintChatbot
