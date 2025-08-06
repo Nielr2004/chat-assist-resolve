@@ -47,6 +47,16 @@ export function UserDashboard() {
       createdAt: new Date("2024-01-14"),
       updatedAt: new Date("2024-01-14"),
     },
+    {
+      id: "TICKET-004",
+      title: "Slow Service",
+      description: "The service has been very slow lately.",
+      category: "Service",
+      priority: "Low",
+      status: "Open",
+      createdAt: new Date("2024-01-18"),
+      updatedAt: new Date("2024-01-18"),
+    },
   ]);
   
   const [searchQuery, setSearchQuery] = useState("");

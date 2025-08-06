@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, Shield, Users, Bot, Zap, Clock } from "lucide-react";
+import { MessageCircle, Users, Bot, Zap, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ComplaintChatbot } from "@/components/ComplaintChatbot";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   const features = [
     {
@@ -91,6 +94,21 @@ const Index = () => {
           </div>
         </div>
       </div>
+      
+      {/* Floating Chatbot Icon */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button
+          variant="default"
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-lg"
+          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+        >
+          <MessageCircle className="h-8 w-8" />
+        </Button>
+      </div>
+
+      {/* Chatbot Pop-up */}
+      <ComplaintChatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </div>
   );
 };

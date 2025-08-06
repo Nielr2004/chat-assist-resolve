@@ -64,6 +64,19 @@ export function AdminDashboard() {
       updatedAt: new Date("2024-01-16"),
       aiSuggestion: "Escalate to senior technical team immediately",
     },
+    {
+      id: "TICKET-004",
+      title: "Slow Service",
+      description: "The service has been very slow lately.",
+      category: "Service",
+      priority: "Low",
+      status: "Open",
+      assignedTo: "Support Team",
+      customer: "Alice Williams",
+      createdAt: new Date("2024-01-18"),
+      updatedAt: new Date("2024-01-18"),
+      aiSuggestion: "Check for any ongoing service disruptions.",
+    },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");

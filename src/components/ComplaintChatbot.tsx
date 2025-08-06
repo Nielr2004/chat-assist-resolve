@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, X } from "lucide-react";
+import { Send, Bot, User, X, Minimize2, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -29,7 +29,9 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [shouldRender, setShouldRender] = useState(isOpen);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,6 +40,29 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+    } else {
+      const timeoutId = setTimeout(() => {
+        setShouldRender(false);
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setShouldRender(false);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
+  const toggleMaximize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMaximized(!isMaximized);
+  };
 
   const generateBotResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase();
@@ -84,12 +109,19 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
       setIsTyping(false);
 
       // Generate ticket after bot response
+      const category = inputValue.toLowerCase().includes("billing") || inputValue.toLowerCase().includes("payment") ? "Billing" :
+                       inputValue.toLowerCase().includes("technical") || inputValue.toLowerCase().includes("not working") || inputValue.toLowerCase().includes("error") ? "Technical" :
+                       "General";
+      const priority = inputValue.toLowerCase().includes("urgent") || inputValue.toLowerCase().includes("emergency") ? "Critical" :
+                       inputValue.toLowerCase().includes("billing") || inputValue.toLowerCase().includes("technical") ? "High" :
+                       "Medium";
+
       setTimeout(() => {
         onComplaintGenerated?.({
-          id: `TICKET-${Date.now()}`,
+          id: TICKET-${Date.now()},
           description: inputValue,
-          category: "General",
-          priority: "Medium",
+          category: category,
+          priority: priority,
           status: "Open",
           createdAt: new Date(),
         });
@@ -103,42 +135,53 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
     }
   };
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-md h-[600px] flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <div className={cn(
+        "fixed z-50 transition-all duration-300 ease-in-out",
+        isOpen ? "animate-fade-in-slide-up" : "animate-fade-out-slide-down",
+        isMaximized
+          ? "inset-0 flex items-center justify-center p-4 bg-black/50"
+          : "bottom-4 right-4 w-96 h-[400px]"
+    )}>
+      <Card className={cn(
+        "flex flex-col rounded-xl shadow-lg border-2 border-primary/20 transition-all duration-300 ease-in-out",
+        isMaximized ? "w-full max-w-4xl h-full max-h-[90vh] mx-auto" : "w-96 h-[400px]"
+      )}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 border-b">
           <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            Support Assistant
+            <Bot className="h-6 w-6 text-primary" />
+            <span className="text-xl">Support Assistant</span>
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={toggleMaximize}>
+              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col p-4">
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <CardContent className="flex-1 flex flex-col p-4 overflow-hidden">
+          <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 custom-scrollbar">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.isBot ? "justify-start" : "justify-end"}`}
+                className={flex ${message.isBot ? "justify-start" : "justify-end"}}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[80%] rounded-2xl p-3 ${
                     message.isBot
                       ? "bg-muted text-muted-foreground"
                       : "bg-primary text-primary-foreground"
                   }`}
                 >
                   <div className="flex items-start gap-2">
-                    {message.isBot ? (
-                      <Bot className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <User className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm">{message.content}</span>
+                    {message.isBot && <Bot className="h-4 w-4 mt-0.5 flex-shrink-0" />}
+                    <span className="text-sm leading-snug">{message.content}</span>
+                    {!message.isBot && <User className="h-4 w-4 mt-0.5 flex-shrink-0" />}
                   </div>
                 </div>
               </div>
@@ -146,7 +189,7 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
             
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground rounded-lg p-3 max-w-[80%]">
+                <div className="bg-muted text-muted-foreground rounded-2xl p-3 max-w-[80%]">
                   <div className="flex items-center gap-2">
                     <Bot className="h-4 w-4" />
                     <div className="flex space-x-1">
@@ -161,15 +204,15 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="flex gap-2">
+          <div className="relative p-2 border-t flex items-center">
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Describe your issue..."
-              className="flex-1"
+              className="w-full rounded-full pr-10"
             />
-            <Button onClick={handleSendMessage} size="sm">
+            <Button onClick={handleSendMessage} size="icon" className="absolute right-4 w-8 h-8 rounded-full">
               <Send className="h-4 w-4" />
             </Button>
           </div>

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { UserDashboard } from "@/components/UserDashboard";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { Button } from "@/components/ui/button";
-import { Users, Shield } from "lucide-react";
+import { Users, Shield, MessageCircle } from "lucide-react";
+import { ComplaintChatbot } from "@/components/ComplaintChatbot";
 
 export default function Dashboard() {
   const [dashboardType, setDashboardType] = useState<"user" | "admin">("user");
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,6 +38,19 @@ export default function Dashboard() {
 
       {/* Dashboard Content */}
       {dashboardType === "user" ? <UserDashboard /> : <AdminDashboard />}
+       {/* Floating Chatbot Icon */}
+       <div className="fixed bottom-4 right-4 z-50">
+        <Button
+          variant="default"
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-lg"
+          onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+        >
+          <MessageCircle className="h-8 w-8" />
+        </Button>
+      </div>
+      {/* Chatbot Pop-up */}
+      <ComplaintChatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </div>
   );
 }
