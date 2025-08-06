@@ -47,16 +47,13 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
     } else {
       const timeoutId = setTimeout(() => {
         setShouldRender(false);
-      }, 300);
+      }, 300); // Match animation duration
       return () => clearTimeout(timeoutId);
     }
   }, [isOpen]);
 
   const handleClose = () => {
-    setShouldRender(false);
-    setTimeout(() => {
-      onClose();
-    }, 300);
+    onClose();
   };
 
   const toggleMaximize = (e: React.MouseEvent) => {
@@ -67,7 +64,6 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
   const generateBotResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase();
     
-    // Simple keyword-based responses (would be replaced with actual AI/NLP)
     if (lowerMessage.includes("billing") || lowerMessage.includes("payment")) {
       return "I understand you have a billing concern. Let me create a high-priority ticket for our billing team to review your account.";
     } else if (lowerMessage.includes("technical") || lowerMessage.includes("not working") || lowerMessage.includes("error")) {
@@ -92,12 +88,12 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate typing delay
     setTimeout(() => {
-      const botResponse = generateBotResponse(inputValue);
+      const botResponse = generateBotResponse(currentInput);
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: botResponse,
@@ -108,18 +104,17 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
       setMessages(prev => [...prev, botMessage]);
       setIsTyping(false);
 
-      // Generate ticket after bot response
-      const category = inputValue.toLowerCase().includes("billing") || inputValue.toLowerCase().includes("payment") ? "Billing" :
-                       inputValue.toLowerCase().includes("technical") || inputValue.toLowerCase().includes("not working") || inputValue.toLowerCase().includes("error") ? "Technical" :
+      const category = currentInput.toLowerCase().includes("billing") || currentInput.toLowerCase().includes("payment") ? "Billing" :
+                       currentInput.toLowerCase().includes("technical") || currentInput.toLowerCase().includes("not working") || currentInput.toLowerCase().includes("error") ? "Technical" :
                        "General";
-      const priority = inputValue.toLowerCase().includes("urgent") || inputValue.toLowerCase().includes("emergency") ? "Critical" :
-                       inputValue.toLowerCase().includes("billing") || inputValue.toLowerCase().includes("technical") ? "High" :
+      const priority = currentInput.toLowerCase().includes("urgent") || currentInput.toLowerCase().includes("emergency") ? "Critical" :
+                       currentInput.toLowerCase().includes("billing") || currentInput.toLowerCase().includes("technical") ? "High" :
                        "Medium";
 
       setTimeout(() => {
         onComplaintGenerated?.({
-          id: TICKET-${Date.now()},
-          description: inputValue,
+          id: `TICKET-${Date.now()}`,
+          description: currentInput,
           category: category,
           priority: priority,
           status: "Open",
@@ -139,11 +134,11 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
 
   return (
     <div className={cn(
-        "fixed z-50 transition-all duration-300 ease-in-out",
+        "fixed z-50",
         isOpen ? "animate-fade-in-slide-up" : "animate-fade-out-slide-down",
         isMaximized
           ? "inset-0 flex items-center justify-center p-4 bg-black/50"
-          : "bottom-4 right-4 w-96 h-[400px]"
+          : "bottom-4 right-4"
     )}>
       <Card className={cn(
         "flex flex-col rounded-xl shadow-lg border-2 border-primary/20 transition-all duration-300 ease-in-out",
@@ -158,7 +153,7 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
             <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={toggleMaximize}>
               {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={handleClose}>
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -169,7 +164,7 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={flex ${message.isBot ? "justify-start" : "justify-end"}}
+                className={`flex ${message.isBot ? "justify-start" : "justify-end"}`}
               >
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 ${
@@ -194,8 +189,8 @@ export function ComplaintChatbot({ isOpen, onClose, onComplaintGenerated }: Comp
                     <Bot className="h-4 w-4" />
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-current rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:0.1s]"></div>
+                      <div className="w-2 h-2 bg-current rounded-full animate-bounce [animation-delay:0.2s]"></div>
                     </div>
                   </div>
                 </div>

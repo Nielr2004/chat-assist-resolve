@@ -1,12 +1,13 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
 	content: [
-		"./pages//*.{ts,tsx}",
-		"./components//*.{ts,tsx}",
-		"./app//*.{ts,tsx}",
-		"./src//*.{ts,tsx}",
+		"./pages/**/*.{ts,tsx}",
+		"./components/**/*.{ts,tsx}",
+		"./app/**/*.{ts,tsx}",
+		"./src/**/*.{ts,tsx}",
 	],
 	prefix: "",
 	theme: {
@@ -86,21 +87,21 @@ export default {
 					}
 				},
         'fade-in-slide-up': {
-          '0%': { opacity: '0', transform: 'translateY(1rem)' },
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         'fade-out-slide-down': {
           '0%': { opacity: '1', transform: 'translateY(0)' },
-          '100%': { opacity: '0', transform: 'translateY(1rem)' },
+          '100%': { opacity: '0', transform: 'translateY(20px)' },
         },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in-slide-up': 'fade-in-slide-up 0.3s ease-out',
-        'fade-out-slide-down': 'fade-out-slide-down 0.3s ease-in forwards',
+        'fade-in-slide-up': 'fade-in-slide-up 0.3s ease-in-out',
+        'fade-out-slide-down': 'fade-out-slide-down 0.3s ease-in-out',
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

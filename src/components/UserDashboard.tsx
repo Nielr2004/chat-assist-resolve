@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { MessageCircle, Plus, Search, Clock, CheckCircle, AlertTriangle, ChevronRight } from "lucide-react";
+import { Search, Clock, CheckCircle, AlertTriangle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ComplaintChatbot } from "./ComplaintChatbot";
 import {
   Table,
   TableBody,
@@ -60,7 +59,6 @@ export function UserDashboard() {
   ]);
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -80,16 +78,6 @@ export function UserDashboard() {
       case "Closed": return <CheckCircle className="h-4 w-4 text-gray-500" />;
       default: return <Clock className="h-4 w-4" />;
     }
-  };
-
-  const handleComplaintGenerated = (newComplaint: any) => {
-    const complaint: Complaint = {
-      ...newComplaint,
-      title: newComplaint.description.slice(0, 50) + "...",
-      updatedAt: new Date(),
-    };
-    setComplaints(prev => [complaint, ...prev]);
-    setIsChatbotOpen(false);
   };
 
   const filteredComplaints = complaints.filter(complaint =>
@@ -125,10 +113,6 @@ export function UserDashboard() {
             <h1 className="text-3xl font-bold">Welcome Back!</h1>
             <p className="text-muted-foreground">Here's a summary of your support requests.</p>
           </div>
-          <Button onClick={() => setIsChatbotOpen(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Complaint
-          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -213,12 +197,8 @@ export function UserDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <ComplaintChatbot
-        isOpen={isChatbotOpen}
-        onClose={() => setIsChatbotOpen(false)}
-        onComplaintGenerated={handleComplaintGenerated}
-      />
     </div>
   );
 }
+
+export default UserDashboard;
